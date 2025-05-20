@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-darkBg text-white;
+  }
+
+  input,
+  textarea,
+  select {
+    @apply bg-darkInput border border-darkBorder rounded p-2 w-full;
+  }
+
+  button {
+    @apply rounded font-semibold;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-primary-blue hover:bg-blue-600 text-white py-2 px-4;
+  }
+
+  .btn-success {
+    @apply bg-primary-green hover:bg-green-600 text-white py-2 px-4;
+  }
+
+  .btn-danger {
+    @apply bg-primary-red hover:bg-red-600 text-white py-2 px-4;
+  }
+
+  .card {
+    @apply bg-light-card p-4 rounded shadow transition-all duration-300;
+  }
+
+  .sidebar-link {
+    @apply block p-4 hover:bg-blue-700 transition-colors;
+  }
+
+  .sidebar-link.active {
+    @apply bg-blue-700;
+  }
+
+  .modal {
+    @apply fixed inset-0 flex items-center justify-center z-50;
+  }
+
+  .modal-content {
+    @apply w-full max-w-lg p-6 rounded-lg shadow-lg;
+  }
+
+  .modal-overlay {
+    @apply fixed inset-0 bg-black bg-opacity-75;
+  }
+
+  .sidebar {
+    @apply h-screen;
+  }
+}
+
+@media (max-width: 768px) {
+  .modal-content {
+    @apply max-w-sm;
+  }
+
+  .card {
+    @apply p-3;
+  }
+
+  .sidebar {
+    @apply w-[180px];
+  }
+}
