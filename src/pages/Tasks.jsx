@@ -8,7 +8,20 @@ import { ProjectContext } from "../contexts/ProjectContext";
 import { GET_STUDENTS } from "../utils/graphql/queries";
 import { AuthContext } from "../contexts/AuthContext";
 import { ThemeContext } from "../contexts/ThemeContext";
-import { FaEdit } from "react-icons/fa";
+import {
+  FaEdit,
+  FaTasks,
+  FaCalendarAlt,
+  FaUser,
+  FaProjectDiagram,
+  FaCheckCircle,
+  FaSpinner,
+  FaClock,
+  FaPauseCircle,
+  FaTimesCircle,
+  FaFilter,
+  FaSort
+} from "react-icons/fa";
 
 const Tasks = () => {
   const { currentUser } = useContext(AuthContext);
@@ -24,7 +37,8 @@ const Tasks = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
-  const [sortBy, setSortBy] = useState("Task Status");
+  const [sortBy, setSortBy] = useState("status");
+  const [filterStatus, setFilterStatus] = useState("all");
   const [sortedTasks, setSortedTasks] = useState([]);
   const [students, setStudents] = useState([]);
 
@@ -49,7 +63,7 @@ const Tasks = () => {
   const filteredTasks = useMemo(() => {
     if (!tasks || !currentUser) return [];
 
-    return tasks.filter((task) => {
+    let filtered = tasks.filter((task) => {
       if (currentUser.role === "student") {
         // Check if task has an assigned student and if it matches the current user
         return (
@@ -60,37 +74,47 @@ const Tasks = () => {
       }
       return true; // Admins can see all tasks
     });
-  }, [tasks, currentUser]);
+
+    // Apply status filter
+    if (filterStatus !== "all") {
+      filtered = filtered.filter((task) => task.status === filterStatus);
+    }
+
+    return filtered;
+  }, [tasks, currentUser, filterStatus]);
 
   // Sort tasks when sorting criteria or filtered tasks change
   useEffect(() => {
-    if (!filteredTasks.length) return;
+    if (!filteredTasks.length) {
+      setSortedTasks([]);
+      return;
+    }
 
     const tasksCopy = [...filteredTasks];
 
     // Sort tasks based on sortBy
     switch (sortBy) {
-      case "Task Status":
+      case "status":
         const statusOrder = {
-          Completed: 1,
-          "In Progress": 2,
-          Pending: 3,
-          "On Hold": 4,
+          "In Progress": 1,
+          Pending: 2,
+          "On Hold": 3,
+          Completed: 4,
           Cancelled: 5,
         };
         tasksCopy.sort((a, b) => statusOrder[a.status] - statusOrder[b.status]);
         break;
-      case "Project":
+      case "project":
         tasksCopy.sort((a, b) => {
           const projectA = a.project?.title || "";
           const projectB = b.project?.title || "";
           return projectA.localeCompare(projectB);
         });
         break;
-      case "Due Date":
+      case "dueDate":
         tasksCopy.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
         break;
-      case "Assigned Student":
+      case "student":
         tasksCopy.sort((a, b) => {
           const studentA = a.assignedStudent?.username || "";
           const studentB = b.assignedStudent?.username || "";
@@ -173,24 +197,19 @@ const Tasks = () => {
   const formatDate = (input) => {
     if (!input) return "N/A";
     try {
-      // Handle different date formats (ISO string, Unix timestamp)
       let date;
-
-      // Check if input is a Unix timestamp (number or numeric string)
       if (!isNaN(Number(input)) && String(input).length > 8) {
-        // Likely a Unix timestamp in milliseconds
         date = new Date(Number(input));
       } else {
-        // Try as a regular date string
         date = new Date(input);
       }
 
-      if (isNaN(date.getTime())) return "Invalid Date"; // Invalid date check
+      if (isNaN(date.getTime())) return "Invalid Date";
 
       return date.toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
+        month: "short",
         day: "numeric",
+        year: "numeric",
       });
     } catch (error) {
       console.error("Error formatting date:", error, "for input:", input);
@@ -198,194 +217,297 @@ const Tasks = () => {
     }
   };
 
-  const getStatusClass = (status) => {
+  const getStatusIcon = (status) => {
     switch (status) {
       case "Completed":
-        return "text-green-500";
+        return <FaCheckCircle className="w-5 h-5" />;
       case "In Progress":
-        return "text-blue-500";
+        return <FaSpinner className="w-5 h-5 animate-spin" />;
       case "Pending":
-        return "text-yellow-500";
+        return <FaClock className="w-5 h-5" />;
       case "On Hold":
-        return "text-gray-500";
+        return <FaPauseCircle className="w-5 h-5" />;
       case "Cancelled":
-        return "text-red-500";
+        return <FaTimesCircle className="w-5 h-5" />;
       default:
-        return "";
+        return <FaTasks className="w-5 h-5" />;
     }
   };
 
-  const getStatusPill = (status) => {
-    const baseClasses =
-      "inline-block px-2.5 py-1 rounded-full text-xs font-medium";
-
+  const getStatusStyle = (status) => {
     switch (status) {
       case "Completed":
-        return `${baseClasses} bg-primary-green text-white`;
+        return "bg-green-500/10 text-green-400 border-green-500/20";
       case "In Progress":
-        return `${baseClasses} bg-primary-blue text-white`;
+        return "bg-blue-500/10 text-blue-400 border-blue-500/20";
       case "Pending":
-        return `${baseClasses} bg-primary-orange text-dark-bg`;
+        return "bg-yellow-500/10 text-yellow-400 border-yellow-500/20";
       case "On Hold":
-        return `${baseClasses} bg-gray-500 text-white`;
+        return "bg-gray-500/10 text-gray-400 border-gray-500/20";
       case "Cancelled":
-        return `${baseClasses} bg-primary-red text-white`;
+        return "bg-red-500/10 text-red-400 border-red-500/20";
       default:
-        return baseClasses;
+        return "bg-gray-500/10 text-gray-400 border-gray-500/20";
     }
   };
+
+  const getDueDateStyle = (dueDate) => {
+    const today = new Date();
+    const due = new Date(dueDate);
+    const diffTime = due - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays < 0) return "text-red-400";
+    if (diffDays <= 3) return "text-yellow-400";
+    return darkMode ? "text-text-muted" : "text-gray-500";
+  };
+
+  const statusOptions = [
+    { value: "all", label: "All Tasks", count: tasks.length },
+    { value: "In Progress", label: "In Progress", count: tasks.filter(t => t.status === "In Progress").length },
+    { value: "Pending", label: "Pending", count: tasks.filter(t => t.status === "Pending").length },
+    { value: "Completed", label: "Completed", count: tasks.filter(t => t.status === "Completed").length },
+    { value: "On Hold", label: "On Hold", count: tasks.filter(t => t.status === "On Hold").length },
+    { value: "Cancelled", label: "Cancelled", count: tasks.filter(t => t.status === "Cancelled").length },
+  ];
 
   return (
     <MainLayout>
-      <div className="container mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-          <div className="flex items-center">
-            <label
-              className={`mr-2 ${darkMode ? "text-gray-300" : "text-gray-800 font-medium"}`}
-            >
-              Sort By:
-            </label>
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className={`${darkMode ? "bg-dark-card text-white" : "bg-white text-gray-800"
-                } p-2 rounded border-none focus:outline-none focus:ring-2 focus:ring-primary-blue cursor-pointer transition-colors duration-300`}
-            >
-              <option value="Task Status">Task Status</option>
-              <option value="Project">Project</option>
-              <option value="Due Date">Due Date</option>
-              <option value="Assigned Student">Assigned Student</option>
-            </select>
-          </div>
-
-          {canAddTasks && (
-            <button
-              onClick={() => setShowAddModal(true)}
-              className="px-4 py-2 bg-primary-blue hover:bg-blue-700 text-white rounded transition-colors duration-300"
-            >
-              Create a New Task
-            </button>
-          )}
+      <div className="container mx-auto px-4 animate-fade-in">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gradient mb-2">Task Management</h1>
+          <p className={`text-sm ${darkMode ? "text-text-muted" : "text-gray-500"}`}>
+            Manage and track all project tasks
+          </p>
         </div>
 
+        {/* Filters and Actions */}
+        <div className="flex flex-col lg:flex-row gap-4 mb-6">
+          {/* Status Filter Pills */}
+          <div className="flex-1 flex flex-wrap gap-2">
+            {statusOptions.map((option) => (
+              <button
+                key={option.value}
+                onClick={() => setFilterStatus(option.value)}
+                className={`px-4 py-2 rounded-xl font-medium transition-all duration-200 border ${filterStatus === option.value
+                  ? darkMode
+                    ? "bg-primary-blue/20 text-primary-blue border-primary-blue"
+                    : "bg-primary-blue/10 text-primary-blue border-primary-blue"
+                  : darkMode
+                    ? "bg-dark-elevated text-text-light border-darkBorder/50 hover:border-primary-blue/50"
+                    : "bg-gray-100 text-gray-700 border-gray-200 hover:border-primary-blue/50"
+                  }`}
+              >
+                {option.label}
+                <span className={`ml-2 text-xs ${filterStatus === option.value
+                  ? ""
+                  : darkMode ? "text-text-muted" : "text-gray-500"
+                  }`}>
+                  ({option.count})
+                </span>
+              </button>
+            ))}
+          </div>
+
+          {/* Sort and Add Button */}
+          <div className="flex gap-3">
+            <div className="relative">
+              <FaSort className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${darkMode ? "text-text-muted" : "text-gray-400"
+                }`} />
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className={`pl-10 pr-4 py-2.5 rounded-xl font-medium ${darkMode
+                  ? "bg-dark-elevated text-white"
+                  : "bg-white text-gray-900"
+                  } border ${darkMode ? "border-darkBorder/50" : "border-gray-200"
+                  } focus:border-primary-blue cursor-pointer`}
+              >
+                <option value="status">Sort by Status</option>
+                <option value="project">Sort by Project</option>
+                <option value="dueDate">Sort by Due Date</option>
+                <option value="student">Sort by Student</option>
+              </select>
+            </div>
+
+            {canAddTasks && (
+              <button
+                onClick={() => setShowAddModal(true)}
+                className="btn-primary whitespace-nowrap"
+              >
+                <FaTasks className="w-4 h-4" />
+                New Task
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Tasks Table */}
         {tasksLoading ? (
           <div className="flex items-center justify-center h-40">
-            <p className={darkMode ? "text-white" : "text-gray-800"}>
-              Loading tasks...
-            </p>
+            <div className="flex flex-col items-center gap-3">
+              <svg className="animate-spin h-10 w-10 text-primary-blue" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+              <p className={darkMode ? "text-text-muted" : "text-gray-500"}>
+                Loading tasks...
+              </p>
+            </div>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table
-              className={`min-w-full ${darkMode ? "bg-dark-card" : "bg-white"
-                } rounded-lg ${darkMode ? "shadow-md" : "shadow-lg border border-gray-200"} transition-colors duration-300`}
-            >
-              <thead>
-                <tr
-                  className={`${darkMode
-                    ? "border-b border-gray-700 text-gray-200"
-                    : "border-b border-gray-200 text-gray-800 bg-gray-100"
-                    }`}
-                >
-                  <th className="py-3 px-4 text-left">Task ID</th>
-                  <th className="py-3 px-4 text-left">Project</th>
-                  <th className="py-3 px-4 text-left">Task Name</th>
-                  <th className="py-3 px-4 text-left">Description</th>
-                  <th className="py-3 px-4 text-left">Assigned Student</th>
-                  <th className="py-3 px-4 text-left">Status</th>
-                  <th className="py-3 px-4 text-left">Due Date</th>
-                  <th className="py-3 px-4 text-left">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {sortedTasks.map((task) => (
-                  <tr
-                    key={task.id}
-                    className={`
-                      ${darkMode
-                        ? "border-b border-gray-700 hover:bg-gray-800 text-gray-200"
-                        : "border-b border-gray-200 hover:bg-gray-50 text-gray-700"
-                      }
-                      transition-colors duration-200
-                    `}
-                  >
-                    <td className="py-3 px-4">{task.id}</td>
-                    <td className="py-3 px-4">
-                      {task.project?.title || getProjectName(task.projectId)}
-                    </td>
-                    <td className="py-3 px-4">{task.name}</td>
-                    <td className="py-3 px-4">
-                      {task.description.length > 50
-                        ? `${task.description.substring(0, 50)}...`
-                        : task.description}
-                    </td>
-                    <td className="py-3 px-4">
-                      {task.assignedStudent?.username || task.assignedStudent}
-                    </td>
-                    <td className="py-3 px-4">
-                      <span className={getStatusPill(task.status)}>
-                        {task.status}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4">
-                      {formatDate(task.dueDate)}
-                    </td>
-                    <td className="py-3 px-4">
-                      <div className="flex items-center space-x-2">
-                        {currentUser.role === "admin" && (
-                          <button
-                            onClick={() => handleEditTask(task)}
-                            className="bg-primary-blue hover:bg-blue-700 text-white px-2 py-1 rounded text-sm transition-colors duration-200 flex items-center"
-                            title="Edit Task"
-                          >
-                            <FaEdit className="mr-1" /> Edit
-                          </button>
-                        )}
-                        {currentUser.role === "student" &&
-                          task.assignedStudent?.id === currentUser.id && (
-                            <>
-                              <button
-                                onClick={() => handleEditTask(task)}
-                                className="bg-primary-blue hover:bg-blue-700 text-white px-2 py-1 rounded text-sm transition-colors duration-200 flex items-center"
-                                title="Edit Task"
-                              >
-                                <FaEdit className="mr-1" /> Edit
-                              </button>
-                              {task.status !== "Completed" && (
-                                <button
-                                  onClick={() =>
-                                    handleStatusChange(task.id, "Completed")
-                                  }
-                                  className="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded text-sm transition-colors duration-200 ml-2"
-                                >
-                                  Mark Completed
-                                </button>
-                              )}
-                              {task.status === "Completed" && (
-                                <button
-                                  onClick={() =>
-                                    handleStatusChange(task.id, "In Progress")
-                                  }
-                                  className="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded text-sm transition-colors duration-200 ml-2"
-                                >
-                                  Reopen
-                                </button>
-                              )}
-                            </>
-                          )}
-                      </div>
-                    </td>
+          <div className={`overflow-hidden rounded-2xl shadow-soft ${darkMode ? "bg-dark-card" : "bg-white"
+            } border ${darkMode ? "border-darkBorder/30" : "border-gray-200"}`}>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className={`border-b ${darkMode ? "border-darkBorder/30 bg-dark-elevated/50" : "border-gray-200 bg-gray-50"
+                    }`}>
+                    <th className={`px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider ${darkMode ? "text-text-muted" : "text-gray-500"
+                      }`}>
+                      Task
+                    </th>
+                    <th className={`px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider ${darkMode ? "text-text-muted" : "text-gray-500"
+                      }`}>
+                      Project
+                    </th>
+                    <th className={`px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider ${darkMode ? "text-text-muted" : "text-gray-500"
+                      }`}>
+                      Assigned To
+                    </th>
+                    <th className={`px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider ${darkMode ? "text-text-muted" : "text-gray-500"
+                      }`}>
+                      Due Date
+                    </th>
+                    <th className={`px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider ${darkMode ? "text-text-muted" : "text-gray-500"
+                      }`}>
+                      Status
+                    </th>
+                    <th className={`px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider ${darkMode ? "text-text-muted" : "text-gray-500"
+                      }`}>
+                      Actions
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+                </thead>
+                <tbody className="divide-y divide-darkBorder/20">
+                  {sortedTasks.map((task) => (
+                    <tr
+                      key={task.id}
+                      className={`group transition-all duration-200 ${darkMode
+                        ? "hover:bg-dark-elevated/50"
+                        : "hover:bg-gray-50"
+                        }`}
+                    >
+                      <td className="px-6 py-4">
+                        <div>
+                          <p className={`font-medium ${darkMode ? "text-white" : "text-gray-900"
+                            }`}>
+                            {task.name}
+                          </p>
+                          <p className={`text-sm mt-1 line-clamp-1 ${darkMode ? "text-text-muted" : "text-gray-500"
+                            }`}>
+                            {task.description}
+                          </p>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2">
+                          <FaProjectDiagram className={`w-3.5 h-3.5 ${darkMode ? "text-primary-blue" : "text-primary-dark"
+                            }`} />
+                          <span className={`text-sm ${darkMode ? "text-text-light" : "text-gray-700"
+                            }`}>
+                            {task.project?.title || getProjectName(task.projectId)}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm ${darkMode ? "bg-dark-elevated" : "bg-gray-100"
+                          }`}>
+                          <FaUser className="w-3 h-3" />
+                          <span className={`font-medium ${darkMode ? "text-white" : "text-gray-900"
+                            }`}>
+                            {task.assignedStudent?.username || task.assignedStudent}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2">
+                          <FaCalendarAlt className={`w-3.5 h-3.5 ${getDueDateStyle(task.dueDate)}`} />
+                          <span className={`text-sm font-medium ${getDueDateStyle(task.dueDate)}`}>
+                            {formatDate(task.dueDate)}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium border ${getStatusStyle(task.status)
+                          }`}>
+                          {getStatusIcon(task.status)}
+                          <span>{task.status}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center justify-end gap-2">
+                          {(currentUser.role === "admin" ||
+                            (currentUser.role === "student" && task.assignedStudent?.id === currentUser.id)) && (
+                              <>
+                                <button
+                                  onClick={() => handleEditTask(task)}
+                                  className={`p-2 rounded-lg transition-all duration-200 ${darkMode
+                                    ? "hover:bg-dark-elevated text-text-muted hover:text-white"
+                                    : "hover:bg-gray-100 text-gray-500 hover:text-gray-700"
+                                    }`}
+                                  title="Edit task"
+                                >
+                                  <FaEdit className="w-4 h-4" />
+                                </button>
 
-        {!tasksLoading && sortedTasks.length === 0 && (
-          <p className={`text-center mt-8 ${darkMode ? "text-gray-400" : "text-gray-500"}`}>
-            No tasks found. Add a new task or change your filters.
-          </p>
+                                {currentUser.role === "student" && task.assignedStudent?.id === currentUser.id && (
+                                  <>
+                                    {task.status !== "Completed" ? (
+                                      <button
+                                        onClick={() => handleStatusChange(task.id, "Completed")}
+                                        className="btn-success px-3 py-1.5 text-xs"
+                                      >
+                                        <FaCheckCircle className="w-3.5 h-3.5" />
+                                        Complete
+                                      </button>
+                                    ) : (
+                                      <button
+                                        onClick={() => handleStatusChange(task.id, "In Progress")}
+                                        className="btn-primary px-3 py-1.5 text-xs"
+                                      >
+                                        <FaSpinner className="w-3.5 h-3.5" />
+                                        Reopen
+                                      </button>
+                                    )}
+                                  </>
+                                )}
+                              </>
+                            )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {!tasksLoading && sortedTasks.length === 0 && (
+              <div className="text-center py-16">
+                <FaTasks className={`w-16 h-16 mx-auto mb-4 ${darkMode ? "text-text-muted" : "text-gray-400"
+                  }`} />
+                <p className={`text-lg font-medium mb-2 ${darkMode ? "text-white" : "text-gray-900"
+                  }`}>
+                  No tasks found
+                </p>
+                <p className={`text-sm ${darkMode ? "text-text-muted" : "text-gray-500"
+                  }`}>
+                  {filterStatus !== "all" ? "Try changing your filters" : "Create a new task to get started"}
+                </p>
+              </div>
+            )}
+          </div>
         )}
       </div>
 

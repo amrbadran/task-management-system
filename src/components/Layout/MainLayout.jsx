@@ -8,14 +8,18 @@ const MainLayout = ({ children }) => {
 
   return (
     <div
-      className={`flex flex-col md:flex-row min-h-screen ${
-        darkMode ? "bg-dark-bg" : "bg-light-bg"
-      } transition-colors duration-300`}
+      className={`flex flex-col md:flex-row min-h-screen ${darkMode ? "bg-dark-bg" : "bg-gray-50"
+        } transition-colors duration-300`}
     >
       <Sidebar />
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
-        <main className="flex-1 p-5">{children}</main>
+        <main className={`flex-1 p-6 overflow-y-auto ${darkMode ? "bg-dark-bg" : "bg-gray-50"
+          }`}>
+          <div className="max-w-7xl mx-auto animate-fade-in">
+            {children}
+          </div>
+        </main>
       </div>
     </div>
   );

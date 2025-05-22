@@ -8,7 +8,7 @@ import { ProjectContext } from "../contexts/ProjectContext";
 import { GET_PROJECT, GET_STUDENTS } from "../utils/graphql/queries";
 import { AuthContext } from "../contexts/AuthContext";
 import { ThemeContext } from "../contexts/ThemeContext";
-import { FaEdit } from "react-icons/fa";
+import { FaEdit, FaTasks } from "react-icons/fa";
 
 const Projects = () => {
   const { currentUser } = useContext(AuthContext);
@@ -152,231 +152,262 @@ const Projects = () => {
         {selectedProject ? (
           // Project Detail View
           <div className="animate-fade-in">
-            {projectLoading ? (
-              <div className="flex items-center justify-center h-40">
-                <p className={darkMode ? "text-white" : "text-gray-800"}>
-                  Loading project details...
+            <div className="flex justify-between items-center mb-8">
+              <div>
+                <h1 className="text-4xl font-bold text-gradient mb-2">
+                  {selectedProject.title}
+                </h1>
+                <p className={`text-lg ${darkMode ? "text-text-muted" : "text-gray-600"}`}>
+                  Project Details
                 </p>
               </div>
-            ) : (
-              <>
-                <div className="flex justify-between items-center mb-8">
-                  <h1 className="text-3xl font-bold text-primary-blue">
-                    {selectedProject.title}
-                  </h1>
-                  <div className="flex space-x-3">
-                    {canManageProjects && (
-                      <button
-                        onClick={() => handleEditProject(selectedProject)}
-                        className="px-5 py-2.5 bg-primary-blue hover:bg-blue-700 text-white rounded-lg transition-all duration-200 flex items-center shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
-                      >
-                        <FaEdit className="mr-2" /> Edit Project
-                      </button>
-                    )}
-                    <button
-                      onClick={handleBackToProjects}
-                      className="px-5 py-2.5 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
-                    >
-                      Back to Projects
-                    </button>
-                  </div>
-                </div>
-
-                <div
-                  className={`${darkMode ? "bg-dark-card" : "bg-white"
-                    } p-8 rounded-xl shadow-lg mb-8 transition-all duration-300 border ${darkMode ? "border-gray-800" : "border-gray-100"
-                    }`}
+              <div className="flex gap-3">
+                {canManageProjects && (
+                  <button
+                    onClick={() => handleEditProject(selectedProject)}
+                    className="btn-primary flex items-center gap-2"
+                  >
+                    <FaEdit className="w-4 h-4" />
+                    Edit Project
+                  </button>
+                )}
+                <button
+                  onClick={handleBackToProjects}
+                  className="btn-secondary flex items-center gap-2"
                 >
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <p
-                        className={`font-semibold text-sm ${darkMode ? "text-gray-400" : "text-gray-600"
-                          } mb-2`}
-                      >
-                        Description
-                      </p>
-                      <p
-                        className={`${darkMode ? "text-gray-300" : "text-gray-700"
-                          } leading-relaxed`}
-                      >
-                        {selectedProject.description}
-                      </p>
-                    </div>
+                  Back to Projects
+                </button>
+              </div>
+            </div>
 
-                    <div>
-                      <p
-                        className={`font-semibold text-sm ${darkMode ? "text-gray-400" : "text-gray-600"
-                          } mb-2`}
-                      >
-                        Category
-                      </p>
-                      <span
-                        className={`inline-block px-4 py-2 rounded-full text-sm font-medium ${darkMode ? "bg-primary-blue bg-opacity-20 text-primary-blue" : "bg-primary-blue bg-opacity-10 text-primary-blue"
-                          }`}
-                      >
-                        {selectedProject.category}
-                      </span>
-                    </div>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+              {/* Main Info Card */}
+              <div className={`lg:col-span-2 ${darkMode ? "bg-dark-card" : "bg-white"
+                } rounded-2xl p-8 shadow-soft border ${darkMode ? "border-darkBorder/30" : "border-gray-200"
+                }`}>
+                <div className="space-y-6">
+                  <div>
+                    <h3 className={`text-sm font-semibold mb-2 ${darkMode ? "text-text-muted" : "text-gray-500"
+                      }`}>
+                      Description
+                    </h3>
+                    <p className={`text-base leading-relaxed ${darkMode ? "text-text-light" : "text-gray-700"
+                      }`}>
+                      {selectedProject.description}
+                    </p>
+                  </div>
 
-                    <div>
-                      <p
-                        className={`font-semibold text-sm ${darkMode ? "text-gray-400" : "text-gray-600"
-                          } mb-2`}
-                      >
-                        Students
-                      </p>
-                      <div className="flex flex-wrap gap-2">
-                        {selectedProject.students.map((student, index) => (
-                          <span
-                            key={index}
-                            className={`px-3 py-1.5 rounded-full text-sm ${darkMode ? "bg-gray-800 text-gray-300" : "bg-gray-100 text-gray-700"
-                              }`}
-                          >
+                  <div className="divider" />
+
+                  <div>
+                    <h3 className={`text-sm font-semibold mb-3 ${darkMode ? "text-text-muted" : "text-gray-500"
+                      }`}>
+                      Assigned Students
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedProject.students.map((student, index) => (
+                        <div
+                          key={index}
+                          className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl ${darkMode ? "bg-dark-elevated" : "bg-gray-100"
+                            }`}
+                        >
+                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-semibold ${darkMode ? "bg-primary-blue/20 text-primary-blue" : "bg-primary-blue/10 text-primary-dark"
+                            }`}>
+                            {(typeof student === "string" ? student : student.username).substring(0, 2).toUpperCase()}
+                          </div>
+                          <span className={`text-sm font-medium ${darkMode ? "text-white" : "text-gray-900"
+                            }`}>
                             {typeof student === "string" ? student : student.username}
                           </span>
-                        ))}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="divider" />
+
+                  <div>
+                    <h3 className={`text-sm font-semibold mb-3 ${darkMode ? "text-text-muted" : "text-gray-500"
+                      }`}>
+                      Timeline
+                    </h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className={`p-4 rounded-xl ${darkMode ? "bg-dark-elevated" : "bg-gray-50"
+                        }`}>
+                        <p className={`text-xs font-medium mb-1 ${darkMode ? "text-text-muted" : "text-gray-500"
+                          }`}>
+                          Start Date
+                        </p>
+                        <p className={`font-semibold ${darkMode ? "text-white" : "text-gray-900"
+                          }`}>
+                          {formatDate(selectedProject.startDate)}
+                        </p>
+                      </div>
+                      <div className={`p-4 rounded-xl ${darkMode ? "bg-dark-elevated" : "bg-gray-50"
+                        }`}>
+                        <p className={`text-xs font-medium mb-1 ${darkMode ? "text-text-muted" : "text-gray-500"
+                          }`}>
+                          End Date
+                        </p>
+                        <p className={`font-semibold ${darkMode ? "text-white" : "text-gray-900"
+                          }`}>
+                          {formatDate(selectedProject.endDate)}
+                        </p>
                       </div>
                     </div>
+                  </div>
+                </div>
+              </div>
 
-                    <div>
-                      <p
-                        className={`font-semibold text-sm ${darkMode ? "text-gray-400" : "text-gray-600"
-                          } mb-2`}
-                      >
-                        Status
-                      </p>
-                      <span
-                        className={`inline-block px-4 py-2 rounded-full text-sm font-medium ${selectedProject.status === "Completed"
-                            ? "bg-green-500 bg-opacity-20 text-green-500"
-                            : selectedProject.status === "In Progress"
-                              ? "bg-blue-500 bg-opacity-20 text-blue-500"
-                              : selectedProject.status === "Pending"
-                                ? "bg-yellow-500 bg-opacity-20 text-yellow-500"
-                                : selectedProject.status === "On Hold"
-                                  ? "bg-gray-500 bg-opacity-20 text-gray-500"
-                                  : "bg-red-500 bg-opacity-20 text-red-500"
-                          }`}
-                      >
+              {/* Status Card */}
+              <div className="space-y-6">
+                <div className={`${darkMode ? "bg-dark-card" : "bg-white"
+                  } rounded-2xl p-6 shadow-soft border ${darkMode ? "border-darkBorder/30" : "border-gray-200"
+                  }`}>
+                  <h3 className={`text-sm font-semibold mb-4 ${darkMode ? "text-text-muted" : "text-gray-500"
+                    }`}>
+                    Project Status
+                  </h3>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className={`text-sm ${darkMode ? "text-text-light" : "text-gray-600"
+                        }`}>
+                        Current Status
+                      </span>
+                      <span className={`px-3 py-1.5 rounded-full text-xs font-semibold ${selectedProject.status === "Completed"
+                        ? "bg-green-500/20 text-green-500 border border-green-500/30"
+                        : selectedProject.status === "In Progress"
+                          ? "bg-blue-500/20 text-blue-500 border border-blue-500/30"
+                          : selectedProject.status === "Pending"
+                            ? "bg-yellow-500/20 text-yellow-500 border border-yellow-500/30"
+                            : selectedProject.status === "On Hold"
+                              ? "bg-gray-500/20 text-gray-500 border border-gray-500/30"
+                              : "bg-red-500/20 text-red-500 border border-red-500/30"
+                        }`}>
                         {selectedProject.status}
                       </span>
                     </div>
-
-                    <div className="md:col-span-2">
-                      <p
-                        className={`font-semibold text-sm ${darkMode ? "text-gray-400" : "text-gray-600"
-                          } mb-3`}
-                      >
-                        Progress
-                      </p>
-                      <div className="w-full bg-gray-200 dark:bg-gray-800 h-3 rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-gradient-to-r from-primary-blue to-blue-600 rounded-full transition-all duration-500"
-                          style={{ width: `${selectedProject.progress}%` }}
-                        ></div>
-                      </div>
-                      <div className="flex justify-between mt-2">
-                        <p className={`text-sm ${darkMode ? "text-gray-500" : "text-gray-500"}`}>
-                          Based on completed tasks
-                        </p>
-                        <p className={`font-medium ${darkMode ? "text-gray-400" : "text-gray-600"}`}>
-                          {selectedProject.progress}%
-                        </p>
-                      </div>
-                    </div>
-
-                    <div>
-                      <p
-                        className={`font-semibold text-sm ${darkMode ? "text-gray-400" : "text-gray-600"
-                          } mb-2`}
-                      >
-                        Start Date
-                      </p>
-                      <p
-                        className={`${darkMode ? "text-gray-300" : "text-gray-700"
-                          }`}
-                      >
-                        {formatDate(selectedProject.startDate)}
-                      </p>
-                    </div>
-
-                    <div>
-                      <p
-                        className={`font-semibold text-sm ${darkMode ? "text-gray-400" : "text-gray-600"
-                          } mb-2`}
-                      >
-                        End Date
-                      </p>
-                      <p
-                        className={`${darkMode ? "text-gray-300" : "text-gray-700"
-                          }`}
-                      >
-                        {formatDate(selectedProject.endDate)}
-                      </p>
+                    <div className="flex items-center justify-between">
+                      <span className={`text-sm ${darkMode ? "text-text-light" : "text-gray-600"
+                        }`}>
+                        Category
+                      </span>
+                      <span className={`text-sm font-medium px-3 py-1.5 rounded-full bg-gradient-to-r ${selectedProject.category === "Web Development"
+                        ? "from-blue-500 to-cyan-500"
+                        : selectedProject.category === "Mobile Development"
+                          ? "from-yellow-500 to-orange-500"
+                          : selectedProject.category === "Data Science"
+                            ? "from-purple-500 to-pink-500"
+                            : selectedProject.category === "Machine Learning"
+                              ? "from-green-500 to-teal-500"
+                              : selectedProject.category === "DevOps"
+                                ? "from-red-500 to-rose-500"
+                                : selectedProject.category === "UX/UI Design"
+                                  ? "from-indigo-500 to-purple-500"
+                                  : "from-gray-500 to-slate-500"
+                        } text-white`}>
+                        {selectedProject.category}
+                      </span>
                     </div>
                   </div>
                 </div>
 
-                <h2 className="text-2xl font-bold text-primary-blue mb-6">
-                  Tasks
-                </h2>
-
-                {selectedProject.tasks && selectedProject.tasks.length > 0 ? (
-                  <div className="space-y-4">
-                    {selectedProject.tasks.map((task) => (
+                <div className={`${darkMode ? "bg-dark-card" : "bg-white"
+                  } rounded-2xl p-6 shadow-soft border ${darkMode ? "border-darkBorder/30" : "border-gray-200"
+                  }`}>
+                  <h3 className={`text-sm font-semibold mb-4 ${darkMode ? "text-text-muted" : "text-gray-500"
+                    }`}>
+                    Progress Overview
+                  </h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-baseline">
+                      <span className={`text-3xl font-bold ${darkMode ? "text-white" : "text-gray-900"
+                        }`}>
+                        {selectedProject.progress}%
+                      </span>
+                      <span className={`text-xs ${darkMode ? "text-text-muted" : "text-gray-500"
+                        }`}>
+                        Complete
+                      </span>
+                    </div>
+                    <div className="progress">
                       <div
-                        key={task.id}
-                        className={`${darkMode ? "bg-dark-card" : "bg-white"
-                          } p-6 rounded-xl shadow-md transition-all duration-300 hover:shadow-lg border ${darkMode ? "border-gray-800" : "border-gray-100"
-                          }`}
-                      >
-                        <div
-                          className={`font-semibold text-lg mb-3 ${darkMode ? "text-white" : "text-gray-800"
-                            }`}
-                        >
+                        className="progress-bar"
+                        style={{ width: `${selectedProject.progress}%` }}
+                      />
+                    </div>
+                    <p className={`text-xs ${darkMode ? "text-text-muted" : "text-gray-500"
+                      }`}>
+                      Based on completed tasks
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Tasks Section */}
+            <div>
+              <h2 className={`text-2xl font-bold mb-6 ${darkMode ? "text-white" : "text-gray-900"
+                }`}>
+                Project Tasks
+              </h2>
+
+              {selectedProject.tasks && selectedProject.tasks.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {selectedProject.tasks.map((task) => (
+                    <div
+                      key={task.id}
+                      className={`${darkMode ? "bg-dark-card" : "bg-white"
+                        } rounded-2xl p-6 shadow-soft border ${darkMode ? "border-darkBorder/30" : "border-gray-200"
+                        } hover:shadow-xl hover:-translate-y-1 transition-all duration-300`}
+                    >
+                      <div className="flex justify-between items-start mb-3">
+                        <h4 className={`font-semibold text-lg ${darkMode ? "text-white" : "text-gray-900"
+                          }`}>
                           {task.name}
-                        </div>
-                        <div
-                          className={`mb-4 leading-relaxed ${darkMode ? "text-gray-300" : "text-gray-700"
-                            }`}
-                        >
-                          {task.description}
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span
-                            className={`text-sm ${darkMode ? "text-gray-400" : "text-gray-600"
-                              }`}
-                          >
-                            Assigned to:{" "}
-                            <span className="font-medium">
-                              {task.assignedStudent.username ||
-                                task.assignedStudent}
-                            </span>
-                          </span>
-                          <span
-                            className={`px-3 py-1 rounded-full text-sm font-medium ${task.status === "Completed"
-                                ? "bg-green-500 bg-opacity-20 text-green-500"
-                                : task.status === "In Progress"
-                                  ? "bg-blue-500 bg-opacity-20 text-blue-500"
-                                  : task.status === "Pending"
-                                    ? "bg-yellow-500 bg-opacity-20 text-yellow-500"
-                                    : task.status === "On Hold"
-                                      ? "bg-gray-500 bg-opacity-20 text-gray-500"
-                                      : "bg-red-500 bg-opacity-20 text-red-500"
-                              }`}
-                          >
-                            {task.status}
-                          </span>
-                        </div>
+                        </h4>
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${task.status === "Completed"
+                          ? "bg-green-500/20 text-green-500 border border-green-500/30"
+                          : task.status === "In Progress"
+                            ? "bg-blue-500/20 text-blue-500 border border-blue-500/30"
+                            : task.status === "Pending"
+                              ? "bg-yellow-500/20 text-yellow-500 border border-yellow-500/30"
+                              : task.status === "On Hold"
+                                ? "bg-gray-500/20 text-gray-500 border border-gray-500/30"
+                                : "bg-red-500/20 text-red-500 border border-red-500/30"
+                          }`}>
+                          {task.status}
+                        </span>
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className={`text-center py-12 ${darkMode ? "text-gray-400" : "text-gray-600"}`}>
-                    <p>No tasks found for this project.</p>
-                  </div>
-                )}
-              </>
-            )}
+                      <p className={`text-sm mb-4 ${darkMode ? "text-text-light" : "text-gray-600"
+                        }`}>
+                        {task.description}
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-semibold ${darkMode ? "bg-dark-elevated text-text-light" : "bg-gray-100 text-gray-700"
+                          }`}>
+                          {(task.assignedStudent?.username || task.assignedStudent || "UN").substring(0, 2).toUpperCase()}
+                        </div>
+                        <span className={`text-sm ${darkMode ? "text-text-muted" : "text-gray-500"
+                          }`}>
+                          {task.assignedStudent?.username || task.assignedStudent}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className={`text-center py-16 ${darkMode ? "bg-dark-card" : "bg-white"
+                  } rounded-2xl border ${darkMode ? "border-darkBorder/30" : "border-gray-200"
+                  }`}>
+                  <FaTasks className={`w-16 h-16 mx-auto mb-4 ${darkMode ? "text-text-muted" : "text-gray-300"
+                    }`} />
+                  <p className={darkMode ? "text-text-muted" : "text-gray-500"}>
+                    No tasks found for this project
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
         ) : (
           // Projects List View
@@ -397,24 +428,12 @@ const Projects = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredProjects.map((project) => (
-                <div key={project.id} className="relative">
-                  <ProjectCard
-                    project={project}
-                    onClick={handleProjectClick}
-                  />
-                  {canManageProjects && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleEditProject(project);
-                      }}
-                      className="absolute top-4 right-4 bg-primary-blue hover:bg-blue-700 text-white p-2.5 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
-                      title="Edit Project"
-                    >
-                      <FaEdit size={14} />
-                    </button>
-                  )}
-                </div>
+                <ProjectCard
+                  key={project.id}
+                  project={project}
+                  onClick={handleProjectClick}
+                  onEdit={canManageProjects ? handleEditProject : null}
+                />
               ))}
             </div>
           </div>
