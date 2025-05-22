@@ -10,37 +10,37 @@
   input,
   textarea,
   select {
-    @apply bg-darkInput border border-darkBorder rounded p-2 w-full;
+    @apply bg-darkInput border border-darkBorder rounded-lg p-3 w-full transition-all duration-200 focus:border-primary-blue focus:shadow-md;
   }
 
   button {
-    @apply rounded font-semibold;
+    @apply rounded-lg font-semibold transition-all duration-200;
   }
 }
 
 @layer components {
   .btn-primary {
-    @apply bg-primary-blue hover:bg-blue-600 text-white py-2 px-4;
+    @apply bg-primary-blue hover:bg-blue-600 text-white py-2.5 px-5 shadow-md hover:shadow-lg transform hover:-translate-y-0.5;
   }
 
   .btn-success {
-    @apply bg-primary-green hover:bg-green-600 text-white py-2 px-4;
+    @apply bg-primary-green hover:bg-green-600 text-white py-2.5 px-5 shadow-md hover:shadow-lg transform hover:-translate-y-0.5;
   }
 
   .btn-danger {
-    @apply bg-primary-red hover:bg-red-600 text-white py-2 px-4;
+    @apply bg-primary-red hover:bg-red-600 text-white py-2.5 px-5 shadow-md hover:shadow-lg transform hover:-translate-y-0.5;
   }
 
   .card {
-    @apply bg-light-card p-4 rounded shadow transition-all duration-300;
+    @apply bg-light-card p-5 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-800;
   }
 
   .sidebar-link {
-    @apply block p-4 hover:bg-blue-700 transition-colors;
+    @apply block p-4 rounded-lg hover:bg-blue-700 transition-all duration-200 hover:shadow-md;
   }
 
   .sidebar-link.active {
-    @apply bg-blue-700;
+    @apply bg-blue-700 shadow-md;
   }
 
   .modal {
@@ -48,28 +48,71 @@
   }
 
   .modal-content {
-    @apply w-full max-w-lg p-6 rounded-lg shadow-lg;
+    @apply w-full max-w-lg p-6 rounded-xl shadow-2xl backdrop-blur-sm;
   }
 
   .modal-overlay {
-    @apply fixed inset-0 bg-black bg-opacity-75;
+    @apply fixed inset-0 bg-black bg-opacity-75 backdrop-blur-sm;
   }
 
   .sidebar {
-    @apply h-screen;
+    @apply h-screen shadow-xl;
+  }
+
+  /* Glass morphism effect */
+  .glass {
+    @apply bg-white bg-opacity-10 backdrop-blur-md border border-white border-opacity-20;
+  }
+
+  /* Smooth scrollbar */
+  ::-webkit-scrollbar {
+    @apply w-2;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-gray-100 dark:bg-gray-800 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gray-400 dark:bg-gray-600 rounded-full hover:bg-gray-500 dark:hover:bg-gray-500;
+  }
+}
+
+@layer utilities {
+
+  /* Enhanced focus states */
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-primary-blue focus:ring-offset-2 focus:ring-offset-gray-100 dark:focus:ring-offset-gray-900;
+  }
+
+  /* Subtle animations */
+  .animate-in {
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 }
 
 @media (max-width: 768px) {
   .modal-content {
-    @apply max-w-sm;
+    @apply max-w-sm mx-4;
   }
 
   .card {
-    @apply p-3;
+    @apply p-4;
   }
 
   .sidebar {
-    @apply w-[180px];
+    @apply w-[200px];
   }
 }

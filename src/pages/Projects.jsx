@@ -151,7 +151,7 @@ const Projects = () => {
       <div className="container mx-auto">
         {selectedProject ? (
           // Project Detail View
-          <div>
+          <div className="animate-fade-in">
             {projectLoading ? (
               <div className="flex items-center justify-center h-40">
                 <p className={darkMode ? "text-white" : "text-gray-800"}>
@@ -160,22 +160,22 @@ const Projects = () => {
               </div>
             ) : (
               <>
-                <div className="flex justify-between items-center mb-6">
-                  <h1 className="text-2xl font-semibold text-primary-blue">
+                <div className="flex justify-between items-center mb-8">
+                  <h1 className="text-3xl font-bold text-primary-blue">
                     {selectedProject.title}
                   </h1>
-                  <div className="flex space-x-2">
+                  <div className="flex space-x-3">
                     {canManageProjects && (
                       <button
                         onClick={() => handleEditProject(selectedProject)}
-                        className="px-4 py-2 bg-primary-blue hover:bg-blue-700 text-white rounded transition-colors duration-300 flex items-center"
+                        className="px-5 py-2.5 bg-primary-blue hover:bg-blue-700 text-white rounded-lg transition-all duration-200 flex items-center shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
                       >
                         <FaEdit className="mr-2" /> Edit Project
                       </button>
                     )}
                     <button
                       onClick={handleBackToProjects}
-                      className="px-4 py-2 bg-primary-green hover:bg-green-700 text-white rounded transition-colors duration-300"
+                      className="px-5 py-2.5 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
                     >
                       Back to Projects
                     </button>
@@ -184,203 +184,211 @@ const Projects = () => {
 
                 <div
                   className={`${darkMode ? "bg-dark-card" : "bg-white"
-                    } p-6 rounded-lg shadow-md mb-8 transition-colors duration-300`}
+                    } p-8 rounded-xl shadow-lg mb-8 transition-all duration-300 border ${darkMode ? "border-gray-800" : "border-gray-100"
+                    }`}
                 >
-                  <div className="mb-4">
-                    <p
-                      className={`font-medium ${darkMode ? "text-white" : "text-gray-800"
-                        }`}
-                    >
-                      Description:
-                    </p>
-                    <p
-                      className={`${darkMode ? "text-gray-300" : "text-gray-700"
-                        }`}
-                    >
-                      {selectedProject.description}
-                    </p>
-                  </div>
-
-                  <div className="mb-4">
-                    <p
-                      className={`font-medium ${darkMode ? "text-white" : "text-gray-800"
-                        }`}
-                    >
-                      Category:
-                    </p>
-                    <p
-                      className={`${darkMode ? "text-gray-300" : "text-gray-700"
-                        }`}
-                    >
-                      {selectedProject.category}
-                    </p>
-                  </div>
-
-                  <div className="mb-4">
-                    <p
-                      className={`font-medium ${darkMode ? "text-white" : "text-gray-800"
-                        }`}
-                    >
-                      Students:
-                    </p>
-                    <p
-                      className={`${darkMode ? "text-gray-300" : "text-gray-700"
-                        }`}
-                    >
-                      {selectedProject.students
-                        .map((student) =>
-                          typeof student === "string"
-                            ? student
-                            : student.username
-                        )
-                        .join(", ")}
-                    </p>
-                  </div>
-
-                  <div className="mb-4">
-                    <p
-                      className={`font-medium ${darkMode ? "text-white" : "text-gray-800"
-                        }`}
-                    >
-                      Status:
-                    </p>
-                    <p
-                      className={`${darkMode ? "text-gray-300" : "text-gray-700"
-                        }`}
-                    >
-                      {selectedProject.status}
-                    </p>
-                  </div>
-
-                  <div className="mb-4">
-                    <p
-                      className={`font-medium ${darkMode ? "text-white" : "text-gray-800"
-                        }`}
-                    >
-                      Progress:
-                    </p>
-                    <div className="w-full bg-gray-300 dark:bg-gray-700 h-2 rounded-sm mb-1">
-                      <div
-                        className="h-full bg-primary-blue rounded-sm"
-                        style={{ width: `${selectedProject.progress}%` }}
-                      ></div>
-                    </div>
-                    <div className="flex justify-between">
-                      <p className={`text-sm ${darkMode ? "text-gray-400" : "text-gray-600"}`}>
-                        Based on completed tasks
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <p
+                        className={`font-semibold text-sm ${darkMode ? "text-gray-400" : "text-gray-600"
+                          } mb-2`}
+                      >
+                        Description
                       </p>
-                      <p className={`${darkMode ? "text-gray-400" : "text-gray-600"}`}>
-                        {selectedProject.progress}%
+                      <p
+                        className={`${darkMode ? "text-gray-300" : "text-gray-700"
+                          } leading-relaxed`}
+                      >
+                        {selectedProject.description}
                       </p>
                     </div>
-                  </div>
 
-                  <div className="mb-4">
-                    <p
-                      className={`font-medium ${darkMode ? "text-white" : "text-gray-800"
-                        }`}
-                    >
-                      Start Date:
-                    </p>
-                    <p
-                      className={`${darkMode ? "text-gray-300" : "text-gray-700"
-                        }`}
-                    >
-                      {formatDate(selectedProject.startDate)}
-                    </p>
-                  </div>
+                    <div>
+                      <p
+                        className={`font-semibold text-sm ${darkMode ? "text-gray-400" : "text-gray-600"
+                          } mb-2`}
+                      >
+                        Category
+                      </p>
+                      <span
+                        className={`inline-block px-4 py-2 rounded-full text-sm font-medium ${darkMode ? "bg-primary-blue bg-opacity-20 text-primary-blue" : "bg-primary-blue bg-opacity-10 text-primary-blue"
+                          }`}
+                      >
+                        {selectedProject.category}
+                      </span>
+                    </div>
 
-                  <div className="mb-4">
-                    <p
-                      className={`font-medium ${darkMode ? "text-white" : "text-gray-800"
-                        }`}
-                    >
-                      End Date:
-                    </p>
-                    <p
-                      className={`${darkMode ? "text-gray-300" : "text-gray-700"
-                        }`}
-                    >
-                      {formatDate(selectedProject.endDate)}
-                    </p>
+                    <div>
+                      <p
+                        className={`font-semibold text-sm ${darkMode ? "text-gray-400" : "text-gray-600"
+                          } mb-2`}
+                      >
+                        Students
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {selectedProject.students.map((student, index) => (
+                          <span
+                            key={index}
+                            className={`px-3 py-1.5 rounded-full text-sm ${darkMode ? "bg-gray-800 text-gray-300" : "bg-gray-100 text-gray-700"
+                              }`}
+                          >
+                            {typeof student === "string" ? student : student.username}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <p
+                        className={`font-semibold text-sm ${darkMode ? "text-gray-400" : "text-gray-600"
+                          } mb-2`}
+                      >
+                        Status
+                      </p>
+                      <span
+                        className={`inline-block px-4 py-2 rounded-full text-sm font-medium ${selectedProject.status === "Completed"
+                            ? "bg-green-500 bg-opacity-20 text-green-500"
+                            : selectedProject.status === "In Progress"
+                              ? "bg-blue-500 bg-opacity-20 text-blue-500"
+                              : selectedProject.status === "Pending"
+                                ? "bg-yellow-500 bg-opacity-20 text-yellow-500"
+                                : selectedProject.status === "On Hold"
+                                  ? "bg-gray-500 bg-opacity-20 text-gray-500"
+                                  : "bg-red-500 bg-opacity-20 text-red-500"
+                          }`}
+                      >
+                        {selectedProject.status}
+                      </span>
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <p
+                        className={`font-semibold text-sm ${darkMode ? "text-gray-400" : "text-gray-600"
+                          } mb-3`}
+                      >
+                        Progress
+                      </p>
+                      <div className="w-full bg-gray-200 dark:bg-gray-800 h-3 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-gradient-to-r from-primary-blue to-blue-600 rounded-full transition-all duration-500"
+                          style={{ width: `${selectedProject.progress}%` }}
+                        ></div>
+                      </div>
+                      <div className="flex justify-between mt-2">
+                        <p className={`text-sm ${darkMode ? "text-gray-500" : "text-gray-500"}`}>
+                          Based on completed tasks
+                        </p>
+                        <p className={`font-medium ${darkMode ? "text-gray-400" : "text-gray-600"}`}>
+                          {selectedProject.progress}%
+                        </p>
+                      </div>
+                    </div>
+
+                    <div>
+                      <p
+                        className={`font-semibold text-sm ${darkMode ? "text-gray-400" : "text-gray-600"
+                          } mb-2`}
+                      >
+                        Start Date
+                      </p>
+                      <p
+                        className={`${darkMode ? "text-gray-300" : "text-gray-700"
+                          }`}
+                      >
+                        {formatDate(selectedProject.startDate)}
+                      </p>
+                    </div>
+
+                    <div>
+                      <p
+                        className={`font-semibold text-sm ${darkMode ? "text-gray-400" : "text-gray-600"
+                          } mb-2`}
+                      >
+                        End Date
+                      </p>
+                      <p
+                        className={`${darkMode ? "text-gray-300" : "text-gray-700"
+                          }`}
+                      >
+                        {formatDate(selectedProject.endDate)}
+                      </p>
+                    </div>
                   </div>
                 </div>
 
-                <h2 className="text-xl font-semibold text-primary-blue mb-4">
+                <h2 className="text-2xl font-bold text-primary-blue mb-6">
                   Tasks
                 </h2>
 
                 {selectedProject.tasks && selectedProject.tasks.length > 0 ? (
-                  <div>
+                  <div className="space-y-4">
                     {selectedProject.tasks.map((task) => (
                       <div
                         key={task.id}
                         className={`${darkMode ? "bg-dark-card" : "bg-white"
-                          } p-4 rounded-lg shadow-md mb-4 transition-colors duration-300`}
+                          } p-6 rounded-xl shadow-md transition-all duration-300 hover:shadow-lg border ${darkMode ? "border-gray-800" : "border-gray-100"
+                          }`}
                       >
                         <div
-                          className={`font-semibold text-lg mb-2 ${darkMode ? "text-white" : "text-gray-800"
+                          className={`font-semibold text-lg mb-3 ${darkMode ? "text-white" : "text-gray-800"
                             }`}
                         >
                           {task.name}
                         </div>
                         <div
-                          className={`mb-2 ${darkMode ? "text-gray-300" : "text-gray-700"
+                          className={`mb-4 leading-relaxed ${darkMode ? "text-gray-300" : "text-gray-700"
                             }`}
                         >
                           {task.description}
                         </div>
-                        <div className="flex justify-between text-sm">
+                        <div className="flex justify-between items-center">
                           <span
-                            className={
-                              darkMode ? "text-gray-300" : "text-gray-700"
-                            }
+                            className={`text-sm ${darkMode ? "text-gray-400" : "text-gray-600"
+                              }`}
                           >
                             Assigned to:{" "}
-                            {task.assignedStudent.username ||
-                              task.assignedStudent}
+                            <span className="font-medium">
+                              {task.assignedStudent.username ||
+                                task.assignedStudent}
+                            </span>
                           </span>
                           <span
-                            className={`
-                            ${task.status === "Completed"
-                                ? "text-green-600"
-                                : ""
-                              }
-                            ${task.status === "In Progress"
-                                ? "text-blue-600"
-                                : ""
-                              }
-                            ${task.status === "Pending" ? "text-yellow-600" : ""
-                              }
-                            ${task.status === "On Hold" ? "text-gray-600" : ""}
-                            ${task.status === "Cancelled" ? "text-red-600" : ""}
-                          `}
+                            className={`px-3 py-1 rounded-full text-sm font-medium ${task.status === "Completed"
+                                ? "bg-green-500 bg-opacity-20 text-green-500"
+                                : task.status === "In Progress"
+                                  ? "bg-blue-500 bg-opacity-20 text-blue-500"
+                                  : task.status === "Pending"
+                                    ? "bg-yellow-500 bg-opacity-20 text-yellow-500"
+                                    : task.status === "On Hold"
+                                      ? "bg-gray-500 bg-opacity-20 text-gray-500"
+                                      : "bg-red-500 bg-opacity-20 text-red-500"
+                              }`}
                           >
-                            Status: {task.status}
+                            {task.status}
                           </span>
                         </div>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className={darkMode ? "text-gray-400" : "text-gray-600"}>
-                    No tasks found for this project.
-                  </p>
+                  <div className={`text-center py-12 ${darkMode ? "text-gray-400" : "text-gray-600"}`}>
+                    <p>No tasks found for this project.</p>
+                  </div>
                 )}
               </>
             )}
           </div>
         ) : (
           // Projects List View
-          <div className="container mx-auto px-4">
-            <div className="flex flex-col md:flex-row justify-between items-center mb-6">
-              <h2 className="text-2xl font-semibold text-primary-blue mb-4 md:mb-0">
+          <div className="container mx-auto px-4 animate-fade-in">
+            <div className="flex flex-col md:flex-row justify-between items-center mb-8">
+              <h2 className="text-3xl font-bold text-primary-blue mb-4 md:mb-0">
                 Projects Overview
               </h2>
               {canManageProjects && (
                 <button
                   onClick={() => setShowAddModal(true)}
-                  className="px-4 py-2 bg-primary-blue hover:bg-blue-700 text-white rounded transition-colors duration-300"
+                  className="px-6 py-3 bg-primary-blue hover:bg-blue-700 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 font-semibold"
                 >
                   Add New Project
                 </button>
@@ -400,10 +408,10 @@ const Projects = () => {
                         e.stopPropagation();
                         handleEditProject(project);
                       }}
-                      className="absolute top-2 right-2 bg-primary-blue hover:bg-blue-700 text-white p-2 rounded-full transition-colors duration-300"
+                      className="absolute top-4 right-4 bg-primary-blue hover:bg-blue-700 text-white p-2.5 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
                       title="Edit Project"
                     >
-                      <FaEdit />
+                      <FaEdit size={14} />
                     </button>
                   )}
                 </div>

@@ -48,25 +48,26 @@ const ProjectCard = ({ project, onClick }) => {
   return (
     <div
       className={`${darkMode ? "bg-dark-card" : "bg-white"
-        } rounded-lg p-5 transition-all duration-300
-        cursor-pointer ${isHovered ? "transform scale-105" : ""
-        } ${getBorderColor()} ${darkMode ? "shadow-md" : "shadow-lg border border-gray-100"}`}
+        } rounded-xl p-6 transition-all duration-300
+        cursor-pointer border-2 ${getBorderColor()} border-opacity-20
+        ${isHovered ? "transform -translate-y-1 shadow-2xl border-opacity-40" : "shadow-soft hover:shadow-xl"
+        } ${darkMode ? "" : "hover:shadow-xl"}`}
       onClick={handleCardClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <h3 className="text-lg font-medium mb-2.5 text-primary-blue">
+      <h3 className="text-lg font-semibold mb-3 text-primary-blue">
         {project.title}
       </h3>
 
       <div className="mb-4">
         <p
-          className={`font-medium ${darkMode ? "text-white" : "text-gray-800"}`}
+          className={`font-medium text-sm ${darkMode ? "text-gray-400" : "text-gray-600"} mb-1`}
         >
           Description:
         </p>
         <p
-          className={`text-sm ${darkMode ? "text-gray-300" : "text-gray-700"
+          className={`text-sm leading-relaxed ${darkMode ? "text-gray-300" : "text-gray-700"
             }`}
         >
           {project.description.length > 100
@@ -77,53 +78,63 @@ const ProjectCard = ({ project, onClick }) => {
 
       <div className="mb-4">
         <p
-          className={`font-medium ${darkMode ? "text-white" : "text-gray-800"}`}
+          className={`font-medium text-sm ${darkMode ? "text-gray-400" : "text-gray-600"} mb-1`}
         >
           Students:
         </p>
-        <p
-          className={`text-sm ${darkMode ? "text-gray-300" : "text-gray-700"
-            }`}
-        >
+        <div className="flex flex-wrap gap-1">
           {project.students
             .map((student) => student.username || student)
-            .join(", ")}
-        </p>
+            .map((name, index) => (
+              <span
+                key={index}
+                className={`text-xs px-2 py-1 rounded-full ${darkMode ? "bg-gray-800 text-gray-300" : "bg-gray-100 text-gray-700"
+                  }`}
+              >
+                {name}
+              </span>
+            ))}
+        </div>
       </div>
 
       <div className="mb-4">
         <p
-          className={`font-medium ${darkMode ? "text-white" : "text-gray-800"}`}
+          className={`font-medium text-sm ${darkMode ? "text-gray-400" : "text-gray-600"} mb-1`}
         >
           Category:
         </p>
-        <p
-          className={`text-sm ${darkMode ? "text-gray-300" : "text-gray-700"
+        <span
+          className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${darkMode ? "bg-primary-blue bg-opacity-20 text-primary-blue" : "bg-primary-blue bg-opacity-10 text-primary-blue"
             }`}
         >
           {project.category}
-        </p>
-      </div>
-
-      <div className="h-2 bg-gray-300 dark:bg-gray-700 rounded-sm mb-1 overflow-hidden">
-        <div
-          className="h-full bg-primary-blue"
-          style={{ width: `${project.progress}%` }}
-        ></div>
-      </div>
-
-      <div className="flex justify-between text-xs mt-1 mb-2">
-        <span className={darkMode ? "text-gray-400" : "text-gray-600"}>
-          {project.progress}% complete
-        </span>
-        <span className={darkMode ? "text-gray-400" : "text-gray-600"}>
-          Auto-calculated
         </span>
       </div>
 
-      <div className="flex justify-between text-xs text-gray-500 mt-2">
-        <span className={darkMode ? "text-gray-400" : "text-gray-600"}>{formatDate(project.startDate)}</span>
-        <span className={darkMode ? "text-gray-400" : "text-gray-600"}>{formatDate(project.endDate)}</span>
+      <div className="mb-3">
+        <div className="h-2.5 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden backdrop-blur-sm">
+          <div
+            className="h-full bg-gradient-to-r from-primary-blue to-blue-600 rounded-full transition-all duration-500 ease-out"
+            style={{ width: `${project.progress}%` }}
+          ></div>
+        </div>
+        <div className="flex justify-between text-xs mt-2">
+          <span className={darkMode ? "text-gray-500" : "text-gray-500"}>
+            Progress
+          </span>
+          <span className={`font-medium ${darkMode ? "text-gray-400" : "text-gray-600"}`}>
+            {project.progress}%
+          </span>
+        </div>
+      </div>
+
+      <div className="flex justify-between text-xs pt-3 border-t ${darkMode ? 'border-gray-800' : 'border-gray-100'}">
+        <span className={darkMode ? "text-gray-500" : "text-gray-500"}>
+          <span className="font-medium">Start:</span> {formatDate(project.startDate)}
+        </span>
+        <span className={darkMode ? "text-gray-500" : "text-gray-500"}>
+          <span className="font-medium">End:</span> {formatDate(project.endDate)}
+        </span>
       </div>
     </div>
   );
