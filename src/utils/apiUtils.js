@@ -1,23 +1,11 @@
-// This file contains utility functions to prepare for Phase 3 integration with a backend API
-
-// Base URL for API calls
-// This will be updated when the backend is implemented
 const API_BASE_URL = "/api";
 
-/**
- * Makes a fetch request to the API with appropriate headers and error handling
- * @param {string} endpoint - API endpoint to call
- * @param {string} method - HTTP method (GET, POST, PUT, DELETE)
- * @param {object} data - Data to send in the request body
- * @returns {Promise} - Promise that resolves with the response data
- */
 export const apiRequest = async (endpoint, method = "GET", data = null) => {
   try {
     const options = {
       method,
       headers: {
         "Content-Type": "application/json",
-        // Authorization header will be added here when auth is implemented
       },
     };
 
@@ -39,9 +27,6 @@ export const apiRequest = async (endpoint, method = "GET", data = null) => {
   }
 };
 
-/**
- * API functions for users/authentication
- */
 export const authAPI = {
   login: (username, password) =>
     apiRequest("/auth/login", "POST", { username, password }),
@@ -50,9 +35,6 @@ export const authAPI = {
   logout: () => apiRequest("/auth/logout", "POST"),
 };
 
-/**
- * API functions for projects
- */
 export const projectsAPI = {
   getAll: () => apiRequest("/projects"),
   getById: (id) => apiRequest(`/projects/${id}`),
@@ -62,9 +44,6 @@ export const projectsAPI = {
   delete: (id) => apiRequest(`/projects/${id}`, "DELETE"),
 };
 
-/**
- * API functions for tasks
- */
 export const tasksAPI = {
   getAll: () => apiRequest("/tasks"),
   getById: (id) => apiRequest(`/tasks/${id}`),
@@ -74,25 +53,18 @@ export const tasksAPI = {
   delete: (id) => apiRequest(`/tasks/${id}`, "DELETE"),
 };
 
-/**
- * API functions for chat messages
- */
 export const chatAPI = {
   getMessages: (userId) => apiRequest(`/chat/${userId}`),
   sendMessage: (userId, message) =>
     apiRequest(`/chat/${userId}`, "POST", { message }),
 };
 
-/**
- * GraphQL query function (for Phase 3)
- */
 export const graphqlRequest = async (query, variables = {}) => {
   try {
     const response = await fetch(`${API_BASE_URL}/graphql`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        // Authorization header will be added here when auth is implemented
       },
       body: JSON.stringify({
         query,

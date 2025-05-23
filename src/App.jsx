@@ -16,7 +16,6 @@ import { ProjectProvider } from "./contexts/ProjectContext";
 import { TaskProvider } from "./contexts/TaskContext";
 import { ThemeProvider, ThemeContext } from "./contexts/ThemeContext";
 
-// Protected route component
 const ProtectedRoute = ({ children, adminOnly }) => {
   const { currentUser, loading } = useContext(AuthContext);
 
@@ -32,7 +31,6 @@ const ProtectedRoute = ({ children, adminOnly }) => {
     return <Navigate to="/signin" />;
   }
 
-  // Restrict access to admin-only routes
   if (adminOnly && currentUser.role !== "admin") {
     return <Navigate to="/projects" />;
   }
@@ -40,7 +38,6 @@ const ProtectedRoute = ({ children, adminOnly }) => {
   return children;
 };
 
-// Public route component
 const PublicRoute = ({ children }) => {
   const { currentUser, loading } = useContext(AuthContext);
 

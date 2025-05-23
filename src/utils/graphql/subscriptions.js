@@ -1,6 +1,5 @@
 import { gql } from "@apollo/client";
 
-// Chat subscriptions
 export const MESSAGE_RECEIVED = gql`
   subscription MessageReceived($userId: ID!) {
     messageReceived(userId: $userId) {
@@ -20,7 +19,6 @@ export const MESSAGE_RECEIVED = gql`
   }
 `;
 
-// Project subscriptions
 export const PROJECT_UPDATED = gql`
   subscription ProjectUpdated($id: ID!) {
     projectUpdated(id: $id) {
@@ -45,7 +43,6 @@ export const PROJECT_UPDATED = gql`
   }
 `;
 
-// Task subscriptions
 export const TASK_UPDATED = gql`
   subscription TaskUpdated($id: ID!) {
     taskUpdated(id: $id) {

@@ -20,7 +20,7 @@ import {
   FaPauseCircle,
   FaTimesCircle,
   FaFilter,
-  FaSort
+  FaSort,
 } from "react-icons/fa";
 
 const Tasks = () => {
@@ -42,40 +42,34 @@ const Tasks = () => {
   const [sortedTasks, setSortedTasks] = useState([]);
   const [students, setStudents] = useState([]);
 
-  // Query students for task assignment
   const { data: studentsData } = useQuery(GET_STUDENTS, {
     skip: !currentUser,
   });
 
-  // Update students list when data changes
   useEffect(() => {
     if (studentsData && studentsData.students) {
       setStudents(studentsData.students);
     } else {
-      // Fallback to localStorage if GraphQL is not working
       const users = JSON.parse(localStorage.getItem("users")) || [];
       const studentList = users.filter((user) => user.role === "student");
       setStudents(studentList);
     }
   }, [studentsData]);
 
-  // Filter tasks based on user role - using useMemo for performance
   const filteredTasks = useMemo(() => {
     if (!tasks || !currentUser) return [];
 
     let filtered = tasks.filter((task) => {
       if (currentUser.role === "student") {
-        // Check if task has an assigned student and if it matches the current user
         return (
           task.assignedStudent &&
           (task.assignedStudent.id === currentUser.id ||
             task.assignedStudent === currentUser.id)
         );
       }
-      return true; // Admins can see all tasks
+      return true;
     });
 
-    // Apply status filter
     if (filterStatus !== "all") {
       filtered = filtered.filter((task) => task.status === filterStatus);
     }
@@ -83,7 +77,6 @@ const Tasks = () => {
     return filtered;
   }, [tasks, currentUser, filterStatus]);
 
-  // Sort tasks when sorting criteria or filtered tasks change
   useEffect(() => {
     if (!filteredTasks.length) {
       setSortedTasks([]);
@@ -92,7 +85,6 @@ const Tasks = () => {
 
     const tasksCopy = [...filteredTasks];
 
-    // Sort tasks based on sortBy
     switch (sortBy) {
       case "status":
         const statusOrder = {
@@ -128,14 +120,11 @@ const Tasks = () => {
     setSortedTasks(tasksCopy);
   }, [filteredTasks, sortBy]);
 
-  // Periodically refresh tasks to ensure up-to-date data
   useEffect(() => {
-    // Set up an interval to refresh tasks every 5 seconds
     const refreshInterval = setInterval(() => {
       refreshTasks();
     }, 5000);
 
-    // Clean up interval on component unmount
     return () => clearInterval(refreshInterval);
   }, [refreshTasks]);
 
@@ -154,13 +143,10 @@ const Tasks = () => {
     }
   };
 
-  // Student can only update their own task status
   const handleStatusChange = async (taskId, newStatus) => {
     if (currentUser.role !== "admin") {
-      // Find the task
       const task = tasks.find((t) => t.id === taskId);
 
-      // Check if student is assigned to this task
       if (task && task.assignedStudent.id !== currentUser.id) {
         console.error("You can only update your own tasks");
         return;
@@ -190,10 +176,8 @@ const Tasks = () => {
     }
   };
 
-  // Only admins can add tasks
   const canAddTasks = currentUser && currentUser.role === "admin";
 
-  // Helper function to safely format dates
   const formatDate = (input) => {
     if (!input) return "N/A";
     try {
@@ -264,11 +248,31 @@ const Tasks = () => {
 
   const statusOptions = [
     { value: "all", label: "All Tasks", count: tasks.length },
-    { value: "In Progress", label: "In Progress", count: tasks.filter(t => t.status === "In Progress").length },
-    { value: "Pending", label: "Pending", count: tasks.filter(t => t.status === "Pending").length },
-    { value: "Completed", label: "Completed", count: tasks.filter(t => t.status === "Completed").length },
-    { value: "On Hold", label: "On Hold", count: tasks.filter(t => t.status === "On Hold").length },
-    { value: "Cancelled", label: "Cancelled", count: tasks.filter(t => t.status === "Cancelled").length },
+    {
+      value: "In Progress",
+      label: "In Progress",
+      count: tasks.filter((t) => t.status === "In Progress").length,
+    },
+    {
+      value: "Pending",
+      label: "Pending",
+      count: tasks.filter((t) => t.status === "Pending").length,
+    },
+    {
+      value: "Completed",
+      label: "Completed",
+      count: tasks.filter((t) => t.status === "Completed").length,
+    },
+    {
+      value: "On Hold",
+      label: "On Hold",
+      count: tasks.filter((t) => t.status === "On Hold").length,
+    },
+    {
+      value: "Cancelled",
+      label: "Cancelled",
+      count: tasks.filter((t) => t.status === "Cancelled").length,
+    },
   ];
 
   return (
@@ -276,8 +280,14 @@ const Tasks = () => {
       <div className="container mx-auto px-4 animate-fade-in">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gradient mb-2">Task Management</h1>
-          <p className={`text-sm ${darkMode ? "text-text-muted" : "text-gray-500"}`}>
+          <h1 className="text-3xl font-bold text-gradient mb-2">
+            Task Management
+          </h1>
+          <p
+            className={`text-sm ${
+              darkMode ? "text-text-muted" : "text-gray-500"
+            }`}
+          >
             Manage and track all project tasks
           </p>
         </div>
@@ -290,20 +300,26 @@ const Tasks = () => {
               <button
                 key={option.value}
                 onClick={() => setFilterStatus(option.value)}
-                className={`px-4 py-2 rounded-xl font-medium transition-all duration-200 border ${filterStatus === option.value
-                  ? darkMode
-                    ? "bg-primary-blue/20 text-primary-blue border-primary-blue"
-                    : "bg-primary-blue/10 text-primary-blue border-primary-blue"
-                  : darkMode
+                className={`px-4 py-2 rounded-xl font-medium transition-all duration-200 border ${
+                  filterStatus === option.value
+                    ? darkMode
+                      ? "bg-primary-blue/20 text-primary-blue border-primary-blue"
+                      : "bg-primary-blue/10 text-primary-blue border-primary-blue"
+                    : darkMode
                     ? "bg-dark-elevated text-text-light border-darkBorder/50 hover:border-primary-blue/50"
                     : "bg-gray-100 text-gray-700 border-gray-200 hover:border-primary-blue/50"
-                  }`}
+                }`}
               >
                 {option.label}
-                <span className={`ml-2 text-xs ${filterStatus === option.value
-                  ? ""
-                  : darkMode ? "text-text-muted" : "text-gray-500"
-                  }`}>
+                <span
+                  className={`ml-2 text-xs ${
+                    filterStatus === option.value
+                      ? ""
+                      : darkMode
+                      ? "text-text-muted"
+                      : "text-gray-500"
+                  }`}
+                >
                   ({option.count})
                 </span>
               </button>
@@ -313,16 +329,21 @@ const Tasks = () => {
           {/* Sort and Add Button */}
           <div className="flex gap-3">
             <div className="relative">
-              <FaSort className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${darkMode ? "text-text-muted" : "text-gray-400"
-                }`} />
+              <FaSort
+                className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${
+                  darkMode ? "text-text-muted" : "text-gray-400"
+                }`}
+              />
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className={`pl-10 pr-4 py-2.5 rounded-xl font-medium ${darkMode
-                  ? "bg-dark-elevated text-white"
-                  : "bg-white text-gray-900"
-                  } border ${darkMode ? "border-darkBorder/50" : "border-gray-200"
-                  } focus:border-primary-blue cursor-pointer`}
+                className={`pl-10 pr-4 py-2.5 rounded-xl font-medium ${
+                  darkMode
+                    ? "bg-dark-elevated text-white"
+                    : "bg-white text-gray-900"
+                } border ${
+                  darkMode ? "border-darkBorder/50" : "border-gray-200"
+                } focus:border-primary-blue cursor-pointer`}
               >
                 <option value="status">Sort by Status</option>
                 <option value="project">Sort by Project</option>
@@ -347,9 +368,24 @@ const Tasks = () => {
         {tasksLoading ? (
           <div className="flex items-center justify-center h-40">
             <div className="flex flex-col items-center gap-3">
-              <svg className="animate-spin h-10 w-10 text-primary-blue" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              <svg
+                className="animate-spin h-10 w-10 text-primary-blue"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                  fill="none"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                />
               </svg>
               <p className={darkMode ? "text-text-muted" : "text-gray-500"}>
                 Loading tasks...
@@ -357,35 +393,61 @@ const Tasks = () => {
             </div>
           </div>
         ) : (
-          <div className={`overflow-hidden rounded-2xl shadow-soft ${darkMode ? "bg-dark-card" : "bg-white"
-            } border ${darkMode ? "border-darkBorder/30" : "border-gray-200"}`}>
+          <div
+            className={`overflow-hidden rounded-2xl shadow-soft ${
+              darkMode ? "bg-dark-card" : "bg-white"
+            } border ${darkMode ? "border-darkBorder/30" : "border-gray-200"}`}
+          >
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className={`border-b ${darkMode ? "border-darkBorder/30 bg-dark-elevated/50" : "border-gray-200 bg-gray-50"
-                    }`}>
-                    <th className={`px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider ${darkMode ? "text-text-muted" : "text-gray-500"
-                      }`}>
+                  <tr
+                    className={`border-b ${
+                      darkMode
+                        ? "border-darkBorder/30 bg-dark-elevated/50"
+                        : "border-gray-200 bg-gray-50"
+                    }`}
+                  >
+                    <th
+                      className={`px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider ${
+                        darkMode ? "text-text-muted" : "text-gray-500"
+                      }`}
+                    >
                       Task
                     </th>
-                    <th className={`px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider ${darkMode ? "text-text-muted" : "text-gray-500"
-                      }`}>
+                    <th
+                      className={`px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider ${
+                        darkMode ? "text-text-muted" : "text-gray-500"
+                      }`}
+                    >
                       Project
                     </th>
-                    <th className={`px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider ${darkMode ? "text-text-muted" : "text-gray-500"
-                      }`}>
+                    <th
+                      className={`px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider ${
+                        darkMode ? "text-text-muted" : "text-gray-500"
+                      }`}
+                    >
                       Assigned To
                     </th>
-                    <th className={`px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider ${darkMode ? "text-text-muted" : "text-gray-500"
-                      }`}>
+                    <th
+                      className={`px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider ${
+                        darkMode ? "text-text-muted" : "text-gray-500"
+                      }`}
+                    >
                       Due Date
                     </th>
-                    <th className={`px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider ${darkMode ? "text-text-muted" : "text-gray-500"
-                      }`}>
+                    <th
+                      className={`px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider ${
+                        darkMode ? "text-text-muted" : "text-gray-500"
+                      }`}
+                    >
                       Status
                     </th>
-                    <th className={`px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider ${darkMode ? "text-text-muted" : "text-gray-500"
-                      }`}>
+                    <th
+                      className={`px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider ${
+                        darkMode ? "text-text-muted" : "text-gray-500"
+                      }`}
+                    >
                       Actions
                     </th>
                   </tr>
@@ -394,54 +456,88 @@ const Tasks = () => {
                   {sortedTasks.map((task) => (
                     <tr
                       key={task.id}
-                      className={`group transition-all duration-200 ${darkMode
-                        ? "hover:bg-dark-elevated/50"
-                        : "hover:bg-gray-50"
-                        }`}
+                      className={`group transition-all duration-200 ${
+                        darkMode
+                          ? "hover:bg-dark-elevated/50"
+                          : "hover:bg-gray-50"
+                      }`}
                     >
                       <td className="px-6 py-4">
                         <div>
-                          <p className={`font-medium ${darkMode ? "text-white" : "text-gray-900"
-                            }`}>
+                          <p
+                            className={`font-medium ${
+                              darkMode ? "text-white" : "text-gray-900"
+                            }`}
+                          >
                             {task.name}
                           </p>
-                          <p className={`text-sm mt-1 line-clamp-1 ${darkMode ? "text-text-muted" : "text-gray-500"
-                            }`}>
+                          <p
+                            className={`text-sm mt-1 line-clamp-1 ${
+                              darkMode ? "text-text-muted" : "text-gray-500"
+                            }`}
+                          >
                             {task.description}
                           </p>
                         </div>
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
-                          <FaProjectDiagram className={`w-3.5 h-3.5 ${darkMode ? "text-primary-blue" : "text-primary-dark"
-                            }`} />
-                          <span className={`text-sm ${darkMode ? "text-text-light" : "text-gray-700"
-                            }`}>
-                            {task.project?.title || getProjectName(task.projectId)}
+                          <FaProjectDiagram
+                            className={`w-3.5 h-3.5 ${
+                              darkMode
+                                ? "text-primary-blue"
+                                : "text-primary-dark"
+                            }`}
+                          />
+                          <span
+                            className={`text-sm ${
+                              darkMode ? "text-text-light" : "text-gray-700"
+                            }`}
+                          >
+                            {task.project?.title ||
+                              getProjectName(task.projectId)}
                           </span>
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm ${darkMode ? "bg-dark-elevated" : "bg-gray-100"
-                          }`}>
+                        <div
+                          className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm ${
+                            darkMode ? "bg-dark-elevated" : "bg-gray-100"
+                          }`}
+                        >
                           <FaUser className="w-3 h-3" />
-                          <span className={`font-medium ${darkMode ? "text-white" : "text-gray-900"
-                            }`}>
-                            {task.assignedStudent?.username || task.assignedStudent}
+                          <span
+                            className={`font-medium ${
+                              darkMode ? "text-white" : "text-gray-900"
+                            }`}
+                          >
+                            {task.assignedStudent?.username ||
+                              task.assignedStudent}
                           </span>
                         </div>
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
-                          <FaCalendarAlt className={`w-3.5 h-3.5 ${getDueDateStyle(task.dueDate)}`} />
-                          <span className={`text-sm font-medium ${getDueDateStyle(task.dueDate)}`}>
+                          <FaCalendarAlt
+                            className={`w-3.5 h-3.5 ${getDueDateStyle(
+                              task.dueDate
+                            )}`}
+                          />
+                          <span
+                            className={`text-sm font-medium ${getDueDateStyle(
+                              task.dueDate
+                            )}`}
+                          >
                             {formatDate(task.dueDate)}
                           </span>
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium border ${getStatusStyle(task.status)
-                          }`}>
+                        <div
+                          className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium border ${getStatusStyle(
+                            task.status
+                          )}`}
+                        >
                           {getStatusIcon(task.status)}
                           <span>{task.status}</span>
                         </div>
@@ -449,24 +545,32 @@ const Tasks = () => {
                       <td className="px-6 py-4">
                         <div className="flex items-center justify-end gap-2">
                           {(currentUser.role === "admin" ||
-                            (currentUser.role === "student" && task.assignedStudent?.id === currentUser.id)) && (
-                              <>
-                                <button
-                                  onClick={() => handleEditTask(task)}
-                                  className={`p-2 rounded-lg transition-all duration-200 ${darkMode
+                            (currentUser.role === "student" &&
+                              task.assignedStudent?.id === currentUser.id)) && (
+                            <>
+                              <button
+                                onClick={() => handleEditTask(task)}
+                                className={`p-2 rounded-lg transition-all duration-200 ${
+                                  darkMode
                                     ? "hover:bg-dark-elevated text-text-muted hover:text-white"
                                     : "hover:bg-gray-100 text-gray-500 hover:text-gray-700"
-                                    }`}
-                                  title="Edit task"
-                                >
-                                  <FaEdit className="w-4 h-4" />
-                                </button>
+                                }`}
+                                title="Edit task"
+                              >
+                                <FaEdit className="w-4 h-4" />
+                              </button>
 
-                                {currentUser.role === "student" && task.assignedStudent?.id === currentUser.id && (
+                              {currentUser.role === "student" &&
+                                task.assignedStudent?.id === currentUser.id && (
                                   <>
                                     {task.status !== "Completed" ? (
                                       <button
-                                        onClick={() => handleStatusChange(task.id, "Completed")}
+                                        onClick={() =>
+                                          handleStatusChange(
+                                            task.id,
+                                            "Completed"
+                                          )
+                                        }
                                         className="btn-success px-3 py-1.5 text-xs"
                                       >
                                         <FaCheckCircle className="w-3.5 h-3.5" />
@@ -474,7 +578,12 @@ const Tasks = () => {
                                       </button>
                                     ) : (
                                       <button
-                                        onClick={() => handleStatusChange(task.id, "In Progress")}
+                                        onClick={() =>
+                                          handleStatusChange(
+                                            task.id,
+                                            "In Progress"
+                                          )
+                                        }
                                         className="btn-primary px-3 py-1.5 text-xs"
                                       >
                                         <FaSpinner className="w-3.5 h-3.5" />
@@ -483,8 +592,8 @@ const Tasks = () => {
                                     )}
                                   </>
                                 )}
-                              </>
-                            )}
+                            </>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -495,15 +604,26 @@ const Tasks = () => {
 
             {!tasksLoading && sortedTasks.length === 0 && (
               <div className="text-center py-16">
-                <FaTasks className={`w-16 h-16 mx-auto mb-4 ${darkMode ? "text-text-muted" : "text-gray-400"
-                  }`} />
-                <p className={`text-lg font-medium mb-2 ${darkMode ? "text-white" : "text-gray-900"
-                  }`}>
+                <FaTasks
+                  className={`w-16 h-16 mx-auto mb-4 ${
+                    darkMode ? "text-text-muted" : "text-gray-400"
+                  }`}
+                />
+                <p
+                  className={`text-lg font-medium mb-2 ${
+                    darkMode ? "text-white" : "text-gray-900"
+                  }`}
+                >
                   No tasks found
                 </p>
-                <p className={`text-sm ${darkMode ? "text-text-muted" : "text-gray-500"
-                  }`}>
-                  {filterStatus !== "all" ? "Try changing your filters" : "Create a new task to get started"}
+                <p
+                  className={`text-sm ${
+                    darkMode ? "text-text-muted" : "text-gray-500"
+                  }`}
+                >
+                  {filterStatus !== "all"
+                    ? "Try changing your filters"
+                    : "Create a new task to get started"}
                 </p>
               </div>
             )}

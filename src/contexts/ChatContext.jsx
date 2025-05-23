@@ -7,7 +7,6 @@ export const ChatProvider = ({ children }) => {
   const [chats, setChats] = useState({});
   const { currentUser } = useContext(AuthContext);
 
-  // Load chat data from localStorage on mount
   useEffect(() => {
     const storedChats = localStorage.getItem("chats");
     if (storedChats) {
@@ -15,12 +14,10 @@ export const ChatProvider = ({ children }) => {
     }
   }, []);
 
-  // Save chat data to localStorage when it changes
   useEffect(() => {
     localStorage.setItem("chats", JSON.stringify(chats));
   }, [chats]);
 
-  // Send a message
   const sendMessage = (studentId, message) => {
     const newMessage = {
       id: Date.now().toString(),
@@ -41,12 +38,10 @@ export const ChatProvider = ({ children }) => {
     return newMessage;
   };
 
-  // Get messages for a specific student
   const getMessagesForStudent = (studentId) => {
     return chats[studentId] || [];
   };
 
-  // Mark message as read
   const markMessageAsRead = (studentId, messageId) => {
     setChats((prevChats) => {
       const studentChats = prevChats[studentId] || [];

@@ -1,6 +1,5 @@
 import { gql } from "@apollo/client";
 
-// Auth mutations
 export const LOGIN = gql`
   mutation Login($username: String!, $password: String!) {
     login(username: $username, password: $password) {
@@ -39,7 +38,6 @@ export const SIGNUP = gql`
   }
 `;
 
-// Project mutations
 export const CREATE_PROJECT = gql`
   mutation CreateProject(
     $title: String!
@@ -123,7 +121,6 @@ export const DELETE_PROJECT = gql`
   }
 `;
 
-// Task mutations
 export const CREATE_TASK = gql`
   mutation CreateTask(
     $projectId: ID!
@@ -195,9 +192,6 @@ export const DELETE_TASK = gql`
   }
 `;
 
-// Add these to src/utils/graphql/mutations.js if not already there
-
-// Chat mutations
 export const SEND_MESSAGE = gql`
   mutation SendMessage($receiverId: ID!, $message: String!) {
     sendMessage(receiverId: $receiverId, message: $message) {

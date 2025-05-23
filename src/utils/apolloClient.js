@@ -9,15 +9,13 @@ import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
 import { getMainDefinition } from "@apollo/client/utilities";
 import { createClient } from "graphql-ws";
 
-// HTTP link for queries and mutations
 const httpLink = createHttpLink({
-  uri: "http://localhost:5000/graphql", // Updated port from 4000 to 5000
+  uri: "http://localhost:5000/graphql",
 });
 
-// WebSocket link for subscriptions
 const wsLink = new GraphQLWsLink(
   createClient({
-    url: "ws://localhost:5000/graphql", // Updated port from 4000 to 5000
+    url: "ws://localhost:5000/graphql",
     connectionParams: () => {
       const token = localStorage.getItem("token");
       return {
@@ -27,11 +25,9 @@ const wsLink = new GraphQLWsLink(
   })
 );
 
-// Authentication link to add token to headers
 const authLink = setContext((_, { headers }) => {
-  // Get the authentication token from local storage if it exists
   const token = localStorage.getItem("token");
-  // Return the headers to the context so httpLink can read them
+
   return {
     headers: {
       ...headers,
@@ -40,7 +36,6 @@ const authLink = setContext((_, { headers }) => {
   };
 });
 
-// Split link to determine which link to use based on operation type
 const splitLink = split(
   ({ query }) => {
     const definition = getMainDefinition(query);
@@ -53,7 +48,6 @@ const splitLink = split(
   authLink.concat(httpLink)
 );
 
-// Create Apollo Client
 const client = new ApolloClient({
   link: splitLink,
   cache: new InMemoryCache(),

@@ -1,6 +1,5 @@
 import { gql } from "@apollo/client";
 
-// User queries
 export const GET_ME = gql`
   query GetMe {
     me {
@@ -40,7 +39,6 @@ export const GET_STUDENTS = gql`
   }
 `;
 
-// Project queries
 export const GET_PROJECTS = gql`
   query GetProjects {
     projects {
@@ -115,7 +113,6 @@ export const GET_PROJECTS_BY_STUDENT = gql`
   }
 `;
 
-// Task queries
 export const GET_TASKS = gql`
   query GetTasks {
     tasks {
@@ -205,9 +202,6 @@ export const GET_TASKS_BY_STUDENT = gql`
   }
 `;
 
-// Add these to your src/utils/graphql/queries.js file
-
-// Chat queries
 export const GET_CHAT_MESSAGES = gql`
   query GetChatMessages($userId: ID!) {
     chatMessages(userId: $userId) {
@@ -227,9 +221,6 @@ export const GET_CHAT_MESSAGES = gql`
   }
 `;
 
-// Add these to your src/utils/graphql/mutations.js file
-
-// Chat mutations
 export const SEND_MESSAGE = gql`
   mutation SendMessage($receiverId: ID!, $message: String!) {
     sendMessage(receiverId: $receiverId, message: $message) {
@@ -258,9 +249,6 @@ export const MARK_MESSAGE_AS_READ = gql`
   }
 `;
 
-// Add these to your src/utils/graphql/subscriptions.js file
-
-// Chat subscriptions
 export const MESSAGE_RECEIVED = gql`
   subscription MessageReceived($userId: ID!) {
     messageReceived(userId: $userId) {

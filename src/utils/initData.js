@@ -1,17 +1,14 @@
-/**
- * Initialize default data for the application on first run
- * This will create demo users, projects, and tasks if they don't exist
- */
+
 export const initializeData = () => {
   console.log("Initializing data...");
 
-  // Check if users already exist
+  
   if (localStorage.getItem("users")) {
     console.log("Users already exist, skipping initialization");
     return;
   }
 
-  // Initialize users
+  
   const defaultUsers = [
     {
       id: "1",
@@ -70,7 +67,7 @@ export const initializeData = () => {
     },
   ];
 
-  // Initialize projects
+  
   const defaultProjects = [
     {
       id: "1",
@@ -129,7 +126,7 @@ export const initializeData = () => {
     },
   ];
 
-  // Initialize tasks
+  
   const defaultTasks = [
     {
       id: "1",
@@ -180,7 +177,7 @@ export const initializeData = () => {
 
   console.log("Saving default data to localStorage");
 
-  // Save to localStorage
+  
   localStorage.setItem("users", JSON.stringify(defaultUsers));
   localStorage.setItem("projects", JSON.stringify(defaultProjects));
   localStorage.setItem("tasks", JSON.stringify(defaultTasks));
