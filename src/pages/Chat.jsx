@@ -25,17 +25,32 @@ const ChatWindow = ({ receiver, messages, onSendMessage, loading }) => {
     setMessage("");
   };
 
-  const formatTime = (timestamp) => {
-    try {
-      const date = new Date(timestamp);
-      return date.toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-    } catch (error) {
-      return "";
+const formatTime = (timestamp) => {
+  try {
+    const parsedTimestamp =
+      typeof timestamp === "string" && /^\d+$/.test(timestamp)
+        ? Number(timestamp)
+        : typeof timestamp === "number"
+        ? timestamp
+        : Date.parse(timestamp);
+
+    const date = new Date(parsedTimestamp);
+
+    if (isNaN(date.getTime())) {
+      throw new Error("Invalid timestamp");
     }
-  };
+
+    return date.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  } catch (error) {
+    console.warn("Invalid timestamp:", timestamp);
+    return "";
+  }
+};
+
+
 
   if (loading) {
     return (
